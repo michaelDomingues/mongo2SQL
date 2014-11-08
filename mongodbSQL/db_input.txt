@@ -1,0 +1,7 @@
+db.user.find({name: 'julio'});
+db.products.find( { qty: { $gt: 25 } } );
+db.users.find({ $or: [ { status: "A" } ,{ age: 50 } ] });
+db.inventory.find( { qty: { $in: [ 5, 15 ] } } );
+db.user.find({age: {$gte: 21}},{name: 1,_id: 1});
+db.user.find({_id: 23113},{name: 1, age: 1});
+db.inventory.find( { tags: { $in: [ /^be/, /^st/ ] } } );
