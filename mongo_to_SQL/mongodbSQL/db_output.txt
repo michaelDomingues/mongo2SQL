@@ -1,8 +1,0 @@
-SELECT * FROM user WHERE name = 'julio' 
-SELECT * FROM products WHERE qty > 25 
-SELECT * FROM users WHERE age = 50 OR status = "A" 
-SELECT * FROM inventory WHERE qty IN (5,15) 
-SELECT name,_id FROM user WHERE age >= 21 
-SELECT name,_id FROM user WHERE weight < 100 age >= 21 
-SELECT name,age FROM user WHERE id = 23113 
-SELECT * FROM inventory WHERE tags IN (/^be/,/^st/) 
