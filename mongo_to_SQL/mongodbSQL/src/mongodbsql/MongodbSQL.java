@@ -14,6 +14,9 @@ public class MongodbSQL {
          */
         Configuration.deleteOutput();
         
+        /**
+         * Inits all program with the mongoDB parser.
+         */
         MongodbParser mp = new MongodbParser();
         mp.readMongoDB();
     }

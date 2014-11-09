@@ -20,7 +20,9 @@ public class MongodbParser {
         this.sqlParser = new SQLParser();
     }
 
-
+    /**
+     * Reads file with mongodb queries foreach line and executes process.
+     */
     public void readMongoDB()
     {
         BufferedReader br=null;
@@ -32,15 +34,25 @@ public class MongodbParser {
             String line = br.readLine();
 
             while (line != null) {
+                /**
+                 * Appends each line to a buffer.
+                 */
                 sb.append(line);
                 sb.append(System.lineSeparator());
-                System.err.println("line: " + line);
+                /**
+                 * Process query into a command.
+                 */
                 Command cmd = cmdBuilder.getCommand(line);
+                /**
+                 * Sends command to a SQL parser.
+                 */
                 sqlParser.processMongoDBComand(cmd);
-
+                /**
+                 * Reads next line.
+                 */
                 line = br.readLine();
             }
-            String everything = sb.toString();
+//            String everything = sb.toString();
         } catch (IOException ex) {
             System.err.println("Exception while parsing mongoDB\n"+ex.getMessage());
         }

@@ -20,6 +20,7 @@ public class ComandBuilder {
     private boolean in = false;
     private boolean selectAll = true;
     private final String COLUMNS_IDENTIFIERS = ":1";
+    private final String COLUMNS_IDENTIFIERS_SPECIFIC = ":1,";
     private final String QUERY_RESTRICTION = ",";
 
     public ComandBuilder() {
@@ -28,8 +29,7 @@ public class ComandBuilder {
     public Command getCommand(String txt) {
 
         this.cmd = new Command();
-        //Parse biggest part
-        // String txt = "db.user.find({age: {$gte: 21}},{name: 1,_id: 1});";
+        /** Parse biggest part.*/ 
         String arg_ments = null;
 
         String re1 = ".*?";	// Non-greedy match on filler
@@ -40,7 +40,6 @@ public class ComandBuilder {
         String re6 = "((?:[a-z][a-z]+))";	// Word 2
         String re7 = "(\\(.*\\))";	// Round Braces 1
 
-//        System.err.println("-------- Parsing line --------");
         Pattern p = Pattern.compile(re1 + re2 + re3 + re4 + re5 + re6 + re7, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
         Matcher m = p.matcher(txt);
         if (m.find()) {
@@ -48,15 +47,11 @@ public class ComandBuilder {
             String word2 = m.group(2);
             String rbraces1 = m.group(3);
             arg_ments = rbraces1.toString();
-            //Sets table name and type of query
+            /** Sets table name and type of query */ 
             cmd.setTableName(word1);
             cmd.setType("SELECT");
-//            System.err.println("-------- Parse done --------");
         }
-
-        /**
-         * Process arguments trimmed without spaces.
-         */
+        /** Process arguments trimmed without spaces. */
         processArguments(arg_ments.replace(" ",""));
 
         return cmd;
@@ -93,9 +88,7 @@ public class ComandBuilder {
                  * Set column condition.
                  */
                 cmd.setColumnsConditions(word1.toString(), new Condition(c1.toString() + word2.toString(), int1.toString()));
-
-//                System.out.print("\t\t\t(" + word1.toString() + ")" + "(" + c1.toString() + word2.toString() + ")" + "(" + int1.toString() + ")" + "\n");
-            }
+           }
         } else {
             /**
              * Without $ identifier.
@@ -111,10 +104,7 @@ public class ComandBuilder {
                 String int1 = m.group(2);
 
                 cmd.setColumnsConditions(word1.toString(), new Condition("=", int1.toString()));
-
-//                System.out.print("\t\t\t(" + word1.toString() + ")" + "(" + int1.toString() + ")" + "\n");
-            }
-
+           }
         }
     }
 
@@ -130,24 +120,26 @@ public class ComandBuilder {
         final String QUOTATION_MARKS = "\'";
 
         try {
-            //If is an Integer
+            /** If is an Integer. */
             Integer.parseInt(operatorValue);
             return "(\\d+)";
         } catch (NumberFormatException e) {
             try {
-                //If is a Float
+                /** If is a Float. */
                 Float.parseFloat(operatorValue);
                 return "([+-]?\\d*\\.\\d+)(?![-+0-9\\.])";
             } catch (NumberFormatException ex) {
-                //For $in operators
+                /** For $in operators. */
                 if (operatorValue.contains(BRACES)) {
                     return "(\\[.*?\\])";
                 } if(operatorValue.contains(WORD)) {
+                    /** For word fields. */
                     return "(\".*?\")";
                 } if(operatorValue.contains(QUOTATION_MARKS)) {
+                    /** For fields with values. */
                     return "(\\'.*?\\')";
                 } else {
-                    //Text by default
+                    /** Text by default. */
                     return "((?:[a-z][a-z]+))";
                 }
             }
@@ -159,31 +151,30 @@ public class ComandBuilder {
      * Process arguments from mongo query.
      * @param arg_ments arguments in brackets
      */
-    private void processArguments(String arg_ments) {
-        
-//        System.err.println("-------- Parsing arguments --------");
+    private void processArguments(String trimmedArgument) {
+
         /**
          *
          * Detect big operators and clean string if they exist.
          */
-        if (arg_ments.contains("and")) {
+        if (trimmedArgument.contains("and")) {
             and = true;
-            arg_ments = StringUtils.substringBetween(arg_ments, "[", "]");
+            trimmedArgument = StringUtils.substringBetween(trimmedArgument, "[", "]");
             cmd.setAndClause(and);
         }
-        if (arg_ments.contains("or")) {
+        if (trimmedArgument.contains("or")) {
             or = true;
-            arg_ments = StringUtils.substringBetween(arg_ments, "[", "]");
+            trimmedArgument = StringUtils.substringBetween(trimmedArgument, "[", "]");
             cmd.setOrClause(or);
         }
-        if (arg_ments.contains("in")) {
+        if (trimmedArgument.contains("in")) {
             in = true;
             cmd.setInClause(in);
         }
-        if (arg_ments.contains(COLUMNS_IDENTIFIERS)) {
+        if (trimmedArgument.contains(COLUMNS_IDENTIFIERS_SPECIFIC)) {
             selectAll = false;
         }
-        if(and == false && or == false && arg_ments.contains(QUERY_RESTRICTION)){
+        if(and == false && or == false && trimmedArgument.contains(QUERY_RESTRICTION)){
             and = true;
             cmd.setAndClause(and);
         }
@@ -191,15 +182,7 @@ public class ComandBuilder {
         /**
          * Clear outside brackets.
          */
-        String[] argums = StringUtils.substringsBetween(arg_ments, "{", "}");
-
-//        System.err.println("\t-------- 1st stage --------");
-//        System.out.println("\tand "+and);
-//        System.out.println("\tor "+or);
-//        System.out.println("\tin "+in);
-
-
-//        System.err.println("\t\t-------- 2nd stage --------");
+        String[] argums = StringUtils.substringsBetween(trimmedArgument, "{", "}");
         
         /**
          * Runs over each {} argument of db find method.
@@ -211,7 +194,6 @@ public class ComandBuilder {
              * splitted the easiest way but it needs more cleaning.
              */
             String argument = StringUtils.remove(argums[i], "{");
-            
             /**
              * Checks if each argument has Restriction and/or columns
              * identifier.
@@ -219,7 +201,7 @@ public class ComandBuilder {
              * Restriction identifier: $in -- $gte -- $lt Column identifier: :1
              */
             boolean hasRestriction = argument.contains(RESTRICTION);
-            boolean hasQueryRestriction = argument.contains(COLUMNS_IDENTIFIERS);
+            boolean hasQueryRestriction = argument.contains(COLUMNS_IDENTIFIERS_SPECIFIC);
             /**
              * Checks if this argument is a column identifier for query results.
              */
@@ -228,7 +210,6 @@ public class ComandBuilder {
 
                 for (String temp : columns) {
                     String columnClean = StringUtils.remove(temp, COLUMNS_IDENTIFIERS);
-//                    System.out.println("\t\t\t Column: " + columnClean);
                     /**
                      * Set columns for be retrieved. 
                      */

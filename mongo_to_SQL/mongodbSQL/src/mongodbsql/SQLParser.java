@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -41,7 +40,7 @@ public class SQLParser {
         String sqlQuery = "";
         
         /**
-         * Insert type of query
+         * Insert type of query.
          */
         if(cmd.getType().equals(SELECT))
         {
@@ -77,7 +76,7 @@ public class SQLParser {
         sqlQuery += (FROM + EMPTY_SPACE + cmd.getTableName() + EMPTY_SPACE + WHERE + EMPTY_SPACE);
         
         /**
-         * Parses type of operator
+         * Parses type of operator.
          */
         HashMap<String, Condition> columnsConditions = cmd.getColumnsConditions();
         Iterator it = columnsConditions.entrySet().iterator(); 
@@ -86,6 +85,9 @@ public class SQLParser {
             Map.Entry pairs = (Map.Entry) it.next();
             Condition cond = (Condition) pairs.getValue();
             
+            /**
+             * Reads command value fmor Hash.
+             */
             String commandValue = cond.getValue();
             
             /**
