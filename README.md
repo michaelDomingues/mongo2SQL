@@ -27,8 +27,8 @@ TODO:
 
 How to run:
 
-- Pull first from Git
+- First pull from Git
 - Compile
-- Add mongodb queries to inout file
+- Add mongodb queries to input file
 - Run jar
 - Check output file
