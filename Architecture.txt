@@ -1,0 +1,29 @@
+This file explains the architecture of this project.
+
+There are two packages:
+
+configuration --> stands for all configuration files needed for building and running the app. E.g.: the paths for the input and output files.
+Contains: 
+
+Configuration.java
+-- Contains paths for the input and output db files as methods for application handling.
+
+mongodbsql --> stands for all the classes that handle the demanded operation.
+Contains: 
+
+MongodbSQL.java
+-- Main executer of the program. Calls MongodbParser to start the process.
+
+MongodbParser.java
+-- Reads from input_db file and creates a Command to help build SQL queries from the mongo find queries.
+Uses CommandBuilder to assist parsing.
+
+Command.java
+-- Stores the variables from each mongodb query as what type of query is (Select or update for example), which columns are required in the answer, operators and values to be filtered, and so on.
+This way handling each query is easier as changing the source for further updates.
+
+ComandBuilder.java
+-- Parses each mongodb query in several stages and builds a Command to be sent to SQLParser over the MongodbParser.
+
+SQLParser.java
+-- Receives the command for each mongodb query, parses it into SQL query and writes to output_db file.
